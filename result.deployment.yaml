@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: result-deployment
+  namespace: default
+  labels:
+    app: result
+    name: result-deployment
+
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: result
+      task: result-deployment
+  template:
+    metadata:
+      labels:
+        app: result
+        task: result-deployment
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                      - result
+              topologyKey: "kubernetes.io/hostname"
+      restartPolicy: Always
+      containers:
+        - name: result
+          image: epitechcontent/t-dop-600-result:k8s
+          ports:
+            - containerPort: 80
+          resources:
+            limits:
+              memory: 128M
+          envFrom:
+            - configMapRef:
+                name: postgres-configmap
+            - secretRef:
+                name: postgres-secrets

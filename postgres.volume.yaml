@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: postgres-pv
+  namespace: default
+  labels:
+    app: postgres
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 512M
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: /var/lib/postgresql/data
+  claimRef:
+    namespace: default
+    name: postgres-pvc
+    kind: PersistentVolumeClaim
+
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-pvc
+  namespace: default
+spec:
+  storageClassName: manual
+  volumeName: postgres-pv
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 512M
